@@ -7,17 +7,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-@SpringBootTest(classes = TestConfig.class)
 @Transactional
+@SpringBootTest(classes = TestConfig.class)
 class ReservationDaoTest {
 
     @Autowired
     private ReservationDao dao;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
@@ -30,18 +34,30 @@ class ReservationDaoTest {
     @Test
     void selectAll() {
         // data setup
-        {
-            var entity = new Reservation();
-            entity.name = "foo";
-            dao.insert(entity);
-        }
-
+        var entity = new Reservation();
+        entity.name = "foo";
+        dao.insert(entity);
         var actual = dao.selectAll();
-        assertThat(actual).hasSize(1).extracting("id", "name").containsExactly(tuple(1, "foo"));
-
+        assertThat(actual).hasSize(1).extracting("id", "name").containsExactly(tuple(entity.id, entity.name));
     }
 
     @Test
     void insert() {
+        var entity = new Reservation();
+        entity.name = "foo";
+        dao.insert(entity);
+
+        var actual = dao.selectById(entity.id);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+
     }
+
+    @Test
+    void selectById() {
+        var actual = dao.selectById(1);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).extracting("id", "name").containsExactly(1, "foo");
+    }
+
 }
