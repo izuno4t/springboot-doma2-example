@@ -2,7 +2,7 @@
 
 SpringBoot で Doma2 をつかった例
 
-## Archtecture
+## Architecture
 
 - Java11
 - [SpringBoot](https://spring.io/projects/spring-boot)
@@ -14,3 +14,4 @@ SpringBoot で Doma2 をつかった例
 -
 - [Spring Boot で Doma 2 を使用するには](https://ksby.hatenablog.com/entry/2015/10/15/043336)
 - [ksby / springboot-doma2-template](https://github.com/ksby/springboot-doma2-template)
+- [naokism / doma2-spring-boot-multiple-ds](https://github.com/naokism/doma2-spring-boot-multiple-ds)
