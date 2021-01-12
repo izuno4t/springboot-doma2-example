@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
 import javax.sql.DataSource;
 
@@ -42,7 +43,7 @@ public class DomaConfig implements Config {
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return new TransactionAwareDataSourceProxy(dataSource);
     }
 
     @Override
