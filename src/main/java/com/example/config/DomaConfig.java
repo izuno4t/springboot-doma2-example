@@ -1,6 +1,7 @@
 package com.example.config;
 
-import com.example.doma.jdbc.UnknownColumnIgnoreHandler;
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.seasar.doma.boot.autoconfigure.DomaAutoConfiguration;
 import org.seasar.doma.jdbc.Config;
@@ -13,8 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
-import javax.sql.DataSource;
+import com.example.doma.jdbc.UnknownColumnIgnoreHandler;
 
 
 @Configuration
@@ -34,15 +36,15 @@ public class DomaConfig implements Config {
                       DataSource dataSource,
                       Environment environment,
                       @Value("${spring.profiles.active}") String springProfilesActive) {
-        this.domaAutoConfiguration = domaAutoConfiguration;
-        this.dataSource = dataSource;
-        this.environment = environment;
         this.springProfilesActive = springProfilesActive;
+        this.domaAutoConfiguration = domaAutoConfiguration;
+        this.environment = environment;
+        this.dataSource = dataSource;
     }
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return new TransactionAwareDataSourceProxy(dataSource);
     }
 
     @Override
