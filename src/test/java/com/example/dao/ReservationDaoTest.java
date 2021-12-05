@@ -18,52 +18,50 @@ import static org.assertj.core.groups.Tuple.tuple;
 @SpringBootTest(classes = TestConfig.class)
 class ReservationDaoTest {
 
-    @Autowired
-    private ReservationDao dao;
+  @Autowired private ReservationDao dao;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
-    @BeforeEach
-    void setUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation");
-    }
+  @BeforeEach
+  void setUp() {
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation");
+  }
 
-    @AfterEach
-    void tearDown() {
-    }
+  @AfterEach
+  void tearDown() {}
 
-    @Test
-    void selectAll() {
-        // data setup
-        var entity = new Reservation();
-        entity.name = "foo";
-        dao.insert(entity);
-        var actual = dao.selectAll();
-        assertThat(actual).hasSize(1).extracting("id", "name").containsExactly(tuple(entity.id, entity.name));
-    }
+  @Test
+  void selectAll() {
+    // data setup
+    var entity = new Reservation();
+    entity.name = "foo";
+    dao.insert(entity);
+    var actual = dao.selectAll();
+    assertThat(actual)
+        .hasSize(1)
+        .extracting("id", "name")
+        .containsExactly(tuple(entity.id, entity.name));
+  }
 
-    @Test
-    void insert() {
-        var entity = new Reservation();
-        entity.name = "foo";
-        dao.insert(entity);
+  @Test
+  void insert() {
+    var entity = new Reservation();
+    entity.name = "foo";
+    dao.insert(entity);
 
-        var actual = dao.selectById(entity.id);
-        assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+    var actual = dao.selectById(entity.id);
+    assertThat(actual).isPresent();
+    assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+  }
 
-    }
+  @Test
+  void selectById() {
+    var entity = new Reservation();
+    entity.name = "foo";
+    dao.insert(entity);
 
-    @Test
-    void selectById() {
-        var entity = new Reservation();
-        entity.name = "foo";
-        dao.insert(entity);
-
-        var actual = dao.selectById(entity.id);
-        assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "foo");
-    }
-
+    var actual = dao.selectById(entity.id);
+    assertThat(actual).isPresent();
+    assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "foo");
+  }
 }

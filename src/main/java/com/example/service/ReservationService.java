@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReservationService {
 
-    private final ReservationDao reservationDao;
+  private final ReservationDao reservationDao;
 
-    public ReservationService(ReservationDao reservationDao) {
-        this.reservationDao = reservationDao;
-    }
+  public ReservationService(ReservationDao reservationDao) {
+    this.reservationDao = reservationDao;
+  }
 
-    @Transactional
-    public int create(Reservation entity){
-        return reservationDao.insert(entity);
-    }
+  @Transactional
+  public int create(Reservation entity) {
+    return reservationDao.insert(entity);
+  }
 }

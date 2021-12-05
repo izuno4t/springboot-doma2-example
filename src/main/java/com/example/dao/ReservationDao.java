@@ -13,12 +13,12 @@ import java.util.Optional;
 @Dao
 public interface ReservationDao {
 
-    @Select
-    Optional<Reservation> selectById(Integer id);
+  @Select
+  Optional<Reservation> selectById(Integer id);
 
-    @Select
-    List<Reservation> selectAll();
+  @Select
+  List<Reservation> selectAll();
 
-    @Insert
-    int insert(Reservation reservation);
+  @Insert
+  int insert(Reservation reservation);
 }
