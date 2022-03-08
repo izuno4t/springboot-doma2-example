@@ -5,63 +5,92 @@ import com.example.entity.Reservation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-@Transactional
 @SpringBootTest(classes = TestConfig.class)
+//@Transactional
 class ReservationDaoTest {
 
-  @Autowired private ReservationDao dao;
+    static final Logger logger = LoggerFactory.getLogger(ReservationDaoTest.class);
 
-  @Autowired private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private ReservationDao dao;
 
-  @BeforeEach
-  void setUp() {
-    JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation");
-  }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-  @AfterEach
-  void tearDown() {}
+    @BeforeEach
+    void setUp() {
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation");
+    }
 
-  @Test
-  void selectAll() {
-    // data setup
-    var entity = new Reservation();
-    entity.name = "foo";
-    dao.insert(entity);
-    var actual = dao.selectAll();
-    assertThat(actual)
-        .hasSize(1)
-        .extracting("id", "name")
-        .containsExactly(tuple(entity.id, entity.name));
-  }
+    @AfterEach
+    void tearDown() {
+    }
 
-  @Test
-  void insert() {
-    var entity = new Reservation();
-    entity.name = "foo";
-    dao.insert(entity);
+    @Test
+    void selectAll() {
+        // data setup
+        var entity = new Reservation();
+        entity.name = "foo";
+        dao.insert(entity);
+        var actual = dao.selectAll();
+        assertThat(actual)
+                .hasSize(1)
+                .extracting("id", "name")
+                .containsExactly(tuple(entity.id, entity.name));
+    }
 
-    var actual = dao.selectById(entity.id);
-    assertThat(actual).isPresent();
-    assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
-  }
+    @Test
+    void insert() {
+        var entity = new Reservation();
+        entity.name = "foo";
+        dao.insert(entity);
 
-  @Test
-  void selectById() {
-    var entity = new Reservation();
-    entity.name = "foo";
-    dao.insert(entity);
+        var actual = dao.selectById(entity.id);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+    }
 
-    var actual = dao.selectById(entity.id);
-    assertThat(actual).isPresent();
-    assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "foo");
-  }
+    @Test
+    void insert2() {
+        var entity = new Reservation();
+        entity.id = 1;
+        entity.name = "foo";
+        dao.insert(entity);
+
+        var entity2 = new Reservation();
+        entity2.id = 1;
+        entity2.name = "bar";
+        try {
+            dao.insert(entity2);
+        } catch (Exception e) {
+            logger.info(e.getMessage(), e);
+            entity2.id = 2;
+            dao.insert(entity2);
+        }
+
+        var actual = dao.selectById(entity.id);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+    }
+
+    @Test
+    void selectById() {
+        var entity = new Reservation();
+        entity.name = "foo";
+        dao.insert(entity);
+
+        var actual = dao.selectById(entity.id);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "foo");
+    }
 }
