@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,34 +59,6 @@ class ReservationDaoTest {
         var actual = dao.selectById(entity.id);
         assertThat(actual).isPresent();
         assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
-    }
-
-    @Test
-    void insert2() {
-
-        var entity = new Reservation();
-        entity.id = 1;
-        entity.name = "foo";
-        dao.insert(entity);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
-
-        entity.name = "bar";
-        try {
-            dao.insert(entity);
-        } catch (Exception e) {
-            logger.info(e.getMessage(), e);
-            dao.update(entity);
-        }
-
-
-        var actual = dao.selectById(entity.id);
-        assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(1, "bar");
-
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
     }
 
     @Test

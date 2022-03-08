@@ -20,7 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <doma.starter.version>1.6.0</doma.starter.version>
-        <doma.version>2.50.0</doma.version>
+        <doma.version>2.51.0</doma.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
         <dependency.details.enabled>false</dependency.details.enabled>
     </properties>
@@ -101,19 +101,19 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.1.0</version>
+            <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>4.1.0</version>
+            <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
-            <version>4.1.0</version>
+            <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -338,14 +338,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
