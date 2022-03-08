@@ -7,7 +7,7 @@ import org.seasar.doma.Id;
 public class Reservation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer id;
 
     public String name;

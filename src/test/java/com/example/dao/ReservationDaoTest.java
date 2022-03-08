@@ -10,13 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.jdbc.JdbcTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 @SpringBootTest(classes = TestConfig.class)
-//@Transactional
+@Transactional
 class ReservationDaoTest {
 
     static final Logger logger = LoggerFactory.getLogger(ReservationDaoTest.class);
@@ -62,25 +64,30 @@ class ReservationDaoTest {
 
     @Test
     void insert2() {
+
         var entity = new Reservation();
         entity.id = 1;
         entity.name = "foo";
         dao.insert(entity);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
 
-        var entity2 = new Reservation();
-        entity2.id = 1;
-        entity2.name = "bar";
+        entity.name = "bar";
         try {
-            dao.insert(entity2);
+            dao.insert(entity);
         } catch (Exception e) {
             logger.info(e.getMessage(), e);
-            entity2.id = 2;
-            dao.insert(entity2);
+            dao.update(entity);
         }
+
 
         var actual = dao.selectById(entity.id);
         assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+        assertThat(actual.get()).extracting("id", "name").containsExactly(1, "bar");
+
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
     }
 
     @Test
