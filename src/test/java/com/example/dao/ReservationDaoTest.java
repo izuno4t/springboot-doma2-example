@@ -41,7 +41,9 @@ class ReservationDaoTest {
     void selectAll() {
         // data setup
         var entity = new Reservation();
+        entity.id = 1;
         entity.name = "foo";
+
         dao.insert(entity);
         var actual = dao.selectAll();
         assertThat(actual)
@@ -53,6 +55,7 @@ class ReservationDaoTest {
     @Test
     void insert() {
         var entity = new Reservation();
+        entity.id = 1;
         entity.name = "foo";
         dao.insert(entity);
 
@@ -64,6 +67,7 @@ class ReservationDaoTest {
     @Test
     void selectById() {
         var entity = new Reservation();
+        entity.id = 1;
         entity.name = "foo";
         dao.insert(entity);
 
