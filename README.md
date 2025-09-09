@@ -4,8 +4,8 @@ SpringBoot で Doma2 をつかった例
 
 ## Architecture
 
-- Java11
-- [SpringBoot](https://spring.io/projects/spring-boot)
+- Java17
+- [SpringBoot](https://spring.io/projects/spring-boot) 3.3.7
 - [Doma2](https://doma.readthedocs.io/en/latest/)
 - [Maven](https://maven.apache.org/) ([Maven Wrapper](https://github.com/takari/maven-wrapper))
 
