@@ -39,6 +39,7 @@ public class DomaConfig implements Config {
     this.domaAutoConfiguration = domaAutoConfiguration;
     this.environment = environment;
     this.dataSource = dataSource;
+    setSqlFileRepository();
   }
 
   @Override
@@ -56,10 +57,9 @@ public class DomaConfig implements Config {
 
   @Override
   public Dialect getDialect() {
-    return domaAutoConfiguration.dialect(environment);
+    return domaAutoConfiguration.domaConfigBuilder().dialect();
   }
 
-  @Autowired
   public void setSqlFileRepository() {
     // develop モードの時は SQL ファイルがキャッシュされないようにする
     if (StringUtils.equals(springProfilesActive, "develop")) {
