@@ -39,19 +39,17 @@ class ReservationServiceTest {
         @Test
         void データがないのでinsertされる() {
             var entity = new Reservation();
-            entity.id = 1;
             entity.name = "foo";
             service.save(entity);
 
             var actual = service.findById(entity.id).orElseThrow();
-            assertThat(actual).extracting("id", "name").containsExactly(1, "foo");
+            assertThat(actual).extracting("id", "name").containsExactly(entity.id, "foo");
         }
 
         @Test
         void データがあるのでUpdateで更新される() {
 
             var entity = new Reservation();
-            entity.id = 1;
             entity.name = "foo";
             service.save(entity);
 
@@ -59,7 +57,7 @@ class ReservationServiceTest {
             service.save(entity);
 
             var actual = service.findById(entity.id).orElseThrow();
-            assertThat(actual).extracting("id", "name").containsExactly(1, "bar");
+            assertThat(actual).extracting("id", "name").containsExactly(entity.id, "bar");
 
         }
 
