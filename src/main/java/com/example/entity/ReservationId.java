@@ -1,6 +1,7 @@
 package com.example.entity;
 
 import org.seasar.doma.Domain;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -11,18 +12,15 @@ import java.util.Objects;
  * wrapping the underlying Integer ID with proper value semantics.
  * </p>
  */
-@Domain(valueType = Integer.class)
-public class ReservationId {
-
-    private final Integer value;
+@Domain(valueType = Integer.class, accessorMethod = "value", factoryMethod = "of")
+public record ReservationId(Integer value) {
 
     /**
      * Creates a new ReservationId with the specified value.
      *
      * @param value the ID value, may be null for new entities
      */
-    public ReservationId(Integer value) {
-        this.value = value;
+    public ReservationId {
     }
 
     /**
@@ -30,7 +28,8 @@ public class ReservationId {
      *
      * @return the ID value, may be null for new entities
      */
-    public Integer getValue() {
+    @Override
+    public Integer value() {
         return value;
     }
 
@@ -53,12 +52,7 @@ public class ReservationId {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
-
-    @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ReservationId{" +
                 "value=" + value +
                 '}';

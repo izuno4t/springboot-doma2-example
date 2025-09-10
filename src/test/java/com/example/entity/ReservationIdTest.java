@@ -16,13 +16,13 @@ class ReservationIdTest {
         @Test
         void 値を指定してReservationIdを作成できる() {
             var id = new ReservationId(123);
-            assertThat(id.getValue()).isEqualTo(123);
+            assertThat(id.value()).isEqualTo(123);
         }
 
         @Test
         void null値でReservationIdを作成できる() {
             var id = new ReservationId(null);
-            assertThat(id.getValue()).isNull();
+            assertThat(id.value()).isNull();
         }
     }
 
@@ -33,7 +33,7 @@ class ReservationIdTest {
         void 正の値からReservationIdを作成できる() {
             var id = ReservationId.of(456);
             assertThat(id).isNotNull();
-            assertThat(id.getValue()).isEqualTo(456);
+            assertThat(id.value()).isEqualTo(456);
         }
 
         @Test
@@ -46,7 +46,7 @@ class ReservationIdTest {
         void ゼロからReservationIdを作成できる() {
             var id = ReservationId.of(0);
             assertThat(id).isNotNull();
-            assertThat(id.getValue()).isEqualTo(0);
+            assertThat(id.value()).isEqualTo(0);
         }
     }
 
@@ -85,7 +85,7 @@ class ReservationIdTest {
         @Test
         void 自分自身と等しい() {
             var id = new ReservationId(123);
-            assertThat(id).isEqualTo(id);
+            assertThat(id).isSameAs(id);
         }
 
         @Test
@@ -97,6 +97,7 @@ class ReservationIdTest {
         @Test
         void 他の型とは等しくない() {
             var id = new ReservationId(123);
+            // 文字列もしくは数値とは異なることを検証
             assertThat(id).isNotEqualTo("123");
             assertThat(id).isNotEqualTo(123);
         }
