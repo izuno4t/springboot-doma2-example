@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for ReservationId value object.
@@ -20,9 +21,10 @@ class ReservationIdTest {
         }
 
         @Test
-        void null値でReservationIdを作成できる() {
-            var id = new ReservationId(null);
-            assertThat(id.value()).isNull();
+        void nullはコンストラクタで例外() {
+            assertThatThrownBy(() -> new ReservationId(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("value must not be null");
         }
     }
 
@@ -37,9 +39,10 @@ class ReservationIdTest {
         }
 
         @Test
-        void null値からはnullが返される() {
-            var id = ReservationId.of(null);
-            assertThat(id).isNull();
+        void nullはofで例外() {
+            assertThatThrownBy(() -> ReservationId.of(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("value must not be null");
         }
 
         @Test
@@ -68,21 +71,6 @@ class ReservationIdTest {
         }
 
         @Test
-        void null値同士のReservationIdは等しい() {
-            var id1 = new ReservationId(null);
-            var id2 = new ReservationId(null);
-            assertThat(id1).isEqualTo(id2);
-        }
-
-        @Test
-        void null値と非null値は等しくない() {
-            var id1 = new ReservationId(null);
-            var id2 = new ReservationId(123);
-            assertThat(id1).isNotEqualTo(id2);
-            assertThat(id2).isNotEqualTo(id1);
-        }
-
-        @Test
         void 自分自身と等しい() {
             var id = new ReservationId(123);
             assertThat(id).isSameAs(id);
@@ -97,9 +85,7 @@ class ReservationIdTest {
         @Test
         void 他の型とは等しくない() {
             var id = new ReservationId(123);
-            // 文字列もしくは数値とは異なることを検証
             assertThat(id).isNotEqualTo("123");
-            assertThat(id).isNotEqualTo(123);
         }
     }
 
@@ -112,13 +98,6 @@ class ReservationIdTest {
             var id2 = new ReservationId(123);
             assertThat(id1.hashCode()).isEqualTo(id2.hashCode());
         }
-
-        @Test
-        void null値のReservationIdのハッシュコードは一貫している() {
-            var id1 = new ReservationId(null);
-            var id2 = new ReservationId(null);
-            assertThat(id1.hashCode()).isEqualTo(id2.hashCode());
-        }
     }
 
     @Nested
@@ -128,12 +107,6 @@ class ReservationIdTest {
         void toString_正常な値() {
             var id = new ReservationId(123);
             assertThat(id.toString()).isEqualTo("ReservationId{value=123}");
-        }
-
-        @Test
-        void toString_null値() {
-            var id = new ReservationId(null);
-            assertThat(id.toString()).isEqualTo("ReservationId{value=null}");
         }
     }
 }

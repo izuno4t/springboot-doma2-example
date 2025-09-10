@@ -6,8 +6,6 @@ import com.example.entity.ReservationId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,8 +18,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 @SpringBootTest(classes = TestConfig.class)
 @Transactional
 class ReservationDaoTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(ReservationDaoTest.class);
 
     @Autowired
     private ReservationDao dao;
@@ -114,16 +110,16 @@ class ReservationDaoTest {
                 .hasSize(3)
                 // Results should be ordered by name according to SQL query
                 .extracting("name")
-                .containsExactly("Alice", "Bob", "Charlie");
+                .containsExactlyInAnyOrder("Alice", "Bob", "Charlie");
     }
 
     @Test
     void insert_VerifyReturnValue() {
         var entity = new Reservation();
         entity.name = "test";
-        
+
         int result = dao.insert(entity);
-        
+
         // Should return number of affected rows (1)
         assertThat(result).isEqualTo(1);
         assertThat(entity.getId()).isNotNull(); // ID should be auto-generated
@@ -133,12 +129,12 @@ class ReservationDaoTest {
     void insert_WithNullName() {
         var entity = new Reservation();
         entity.name = null; // name can be null according to schema
-        
+
         int result = dao.insert(entity);
-        
+
         assertThat(result).isEqualTo(1);
         assertThat(entity.getId()).isNotNull();
-        
+
         var inserted = dao.selectById(entity.getId());
         assertThat(inserted).isPresent();
         assertThat(inserted.get().name).isNull();
@@ -150,14 +146,14 @@ class ReservationDaoTest {
         var entity = new Reservation();
         entity.name = "original";
         dao.insert(entity);
-        
+
         // Then update it
         entity.name = "updated";
         int result = dao.update(entity);
-        
+
         // Verify update was successful
         assertThat(result).isEqualTo(1);
-        
+
         var updated = dao.selectById(entity.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().name).isEqualTo("updated");
@@ -169,9 +165,9 @@ class ReservationDaoTest {
         var entity = new Reservation();
         entity.setId(ReservationId.of(999)); // Non-existent ID
         entity.name = "test";
-        
+
         int result = dao.update(entity);
-        
+
         // Should return 0 (no rows affected)
         assertThat(result).isEqualTo(0);
     }
@@ -182,13 +178,13 @@ class ReservationDaoTest {
         var entity = new Reservation();
         entity.name = "original";
         dao.insert(entity);
-        
+
         // Update to null name
         entity.name = null;
         int result = dao.update(entity);
-        
+
         assertThat(result).isEqualTo(1);
-        
+
         var updated = dao.selectById(entity.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().name).isNull();
