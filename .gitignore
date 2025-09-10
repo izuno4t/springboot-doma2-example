@@ -244,3 +244,4 @@ gradle-app.setting
 **/build/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,eclipse,intellij,visualstudiocode,maven,gradle
+/.idea

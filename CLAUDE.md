@@ -47,7 +47,7 @@ PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_tabl
 ## Architecture
 
 ### Key Technologies
-- **Java 17** (specified in pom.xml and .sdkmanrc)
+- **Java 21** (specified in pom.xml and .sdkmanrc)
 - **Spring Boot 3.3.7** with auto-configuration
 - **Doma2 3.11.0** ORM framework with 2-way SQL
 - **PostgreSQL 12** database
