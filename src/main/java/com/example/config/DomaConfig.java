@@ -1,7 +1,6 @@
 package com.example.config;
 
 import com.example.doma.jdbc.UnknownColumnIgnoreHandler;
-import org.apache.commons.lang3.StringUtils;
 import org.seasar.doma.boot.autoconfigure.DomaAutoConfiguration;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.GreedyCacheSqlFileRepository;
@@ -9,7 +8,6 @@ import org.seasar.doma.jdbc.NoCacheSqlFileRepository;
 import org.seasar.doma.jdbc.SqlFileRepository;
 import org.seasar.doma.jdbc.UnknownColumnHandler;
 import org.seasar.doma.jdbc.dialect.Dialect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -29,13 +27,16 @@ public class DomaConfig implements Config {
   private SqlFileRepository sqlFileRepository;
 
   private final String springProfilesActive;
+  private final String domaDialect;
 
   public DomaConfig(
       DomaAutoConfiguration domaAutoConfiguration,
       DataSource dataSource,
       Environment environment,
-      @Value("${spring.profiles.active}") String springProfilesActive) {
+      @Value("${spring.profiles.active:}") String springProfilesActive,
+      @Value("${doma.dialect:postgres}") String domaDialect) {
     this.springProfilesActive = springProfilesActive;
+    this.domaDialect = domaDialect;
     this.domaAutoConfiguration = domaAutoConfiguration;
     this.environment = environment;
     this.dataSource = dataSource;
@@ -49,7 +50,7 @@ public class DomaConfig implements Config {
 
   @Override
   public UnknownColumnHandler getUnknownColumnHandler() {
-    if (StringUtils.equals(springProfilesActive, "develop")) {
+    if ("devel".equals(springProfilesActive)) {
       return domaAutoConfiguration.domaConfigBuilder().unknownColumnHandler();
     }
     return new UnknownColumnIgnoreHandler();
@@ -57,12 +58,20 @@ public class DomaConfig implements Config {
 
   @Override
   public Dialect getDialect() {
-    return domaAutoConfiguration.domaConfigBuilder().dialect();
+    String dialectName = domaDialect.toLowerCase();
+    if ("postgres".equals(dialectName) || "postgresql".equals(dialectName)) {
+      return new org.seasar.doma.jdbc.dialect.PostgresDialect();
+    } else if ("h2".equals(dialectName)) {
+      return new org.seasar.doma.jdbc.dialect.H2Dialect();
+    } else {
+      // fallback to PostgreSQL
+      return new org.seasar.doma.jdbc.dialect.PostgresDialect();
+    }
   }
 
   public void setSqlFileRepository() {
     // develop モードの時は SQL ファイルがキャッシュされないようにする
-    if (StringUtils.equals(springProfilesActive, "develop")) {
+    if ("devel".equals(springProfilesActive)) {
       sqlFileRepository = new NoCacheSqlFileRepository();
     } else {
       sqlFileRepository = new GreedyCacheSqlFileRepository();

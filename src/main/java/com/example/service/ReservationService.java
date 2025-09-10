@@ -32,14 +32,11 @@ public class ReservationService {
     }
 
     public int save(Reservation entity) {
-        int affectedRow;
-        try {
-            affectedRow = internalService.create(entity);
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-            affectedRow = internalService.update(entity);
+        if (entity.id == null) {
+            return internalService.create(entity);
+        } else {
+            return internalService.update(entity);
         }
-        return affectedRow;
     }
 
 

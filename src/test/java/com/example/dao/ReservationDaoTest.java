@@ -20,7 +20,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 @Transactional
 class ReservationDaoTest {
 
-    static final Logger logger = LoggerFactory.getLogger(ReservationDaoTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReservationDaoTest.class);
 
     @Autowired
     private ReservationDao dao;
