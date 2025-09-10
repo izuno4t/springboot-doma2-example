@@ -1,6 +1,7 @@
 package com.example.dao;
 
 import com.example.entity.Reservation;
+import com.example.entity.ReservationId;
 import org.seasar.doma.Dao;
 import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public interface ReservationDao {
 
     @Select
-    Optional<Reservation> selectById(Integer id);
+    Optional<Reservation> selectById(ReservationId id);
 
     @Select
     List<Reservation> selectAll();
