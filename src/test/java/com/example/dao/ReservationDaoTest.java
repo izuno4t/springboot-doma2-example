@@ -2,6 +2,7 @@ package com.example.dao;
 
 import com.example.TestConfig;
 import com.example.entity.Reservation;
+import com.example.entity.ReservationId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class ReservationDaoTest {
         assertThat(actual)
                 .hasSize(1)
                 .extracting("id", "name")
-                .containsExactly(tuple(entity.id, entity.name));
+                .containsExactly(tuple(entity.getId(), entity.name));
     }
 
     @Test
@@ -56,9 +57,9 @@ class ReservationDaoTest {
         entity.name = "foo";
         dao.insert(entity);
 
-        var actual = dao.selectById(entity.id);
+        var actual = dao.selectById(entity.getId());
         assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, entity.name);
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.getId(), entity.name);
     }
 
     @Test
@@ -67,15 +68,15 @@ class ReservationDaoTest {
         entity.name = "foo";
         dao.insert(entity);
 
-        var actual = dao.selectById(entity.id);
+        var actual = dao.selectById(entity.getId());
         assertThat(actual).isPresent();
-        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "foo");
+        assertThat(actual.get()).extracting("id", "name").containsExactly(entity.getId(), "foo");
     }
 
     @Test
     void selectById_NotFound() {
         // Try to select an ID that doesn't exist
-        var actual = dao.selectById(999);
+        var actual = dao.selectById(ReservationId.of(999));
         assertThat(actual).isEmpty();
     }
 
@@ -125,7 +126,7 @@ class ReservationDaoTest {
         
         // Should return number of affected rows (1)
         assertThat(result).isEqualTo(1);
-        assertThat(entity.id).isNotNull(); // ID should be auto-generated
+        assertThat(entity.getId()).isNotNull(); // ID should be auto-generated
     }
 
     @Test
@@ -136,9 +137,9 @@ class ReservationDaoTest {
         int result = dao.insert(entity);
         
         assertThat(result).isEqualTo(1);
-        assertThat(entity.id).isNotNull();
+        assertThat(entity.getId()).isNotNull();
         
-        var inserted = dao.selectById(entity.id);
+        var inserted = dao.selectById(entity.getId());
         assertThat(inserted).isPresent();
         assertThat(inserted.get().name).isNull();
     }
@@ -157,7 +158,7 @@ class ReservationDaoTest {
         // Verify update was successful
         assertThat(result).isEqualTo(1);
         
-        var updated = dao.selectById(entity.id);
+        var updated = dao.selectById(entity.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().name).isEqualTo("updated");
     }
@@ -166,7 +167,7 @@ class ReservationDaoTest {
     void update_NonExistentRecord() {
         // Try to update a record that doesn't exist
         var entity = new Reservation();
-        entity.id = 999; // Non-existent ID
+        entity.setId(ReservationId.of(999)); // Non-existent ID
         entity.name = "test";
         
         int result = dao.update(entity);
@@ -188,7 +189,7 @@ class ReservationDaoTest {
         
         assertThat(result).isEqualTo(1);
         
-        var updated = dao.selectById(entity.id);
+        var updated = dao.selectById(entity.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().name).isNull();
     }

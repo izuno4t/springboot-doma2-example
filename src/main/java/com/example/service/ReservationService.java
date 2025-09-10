@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dao.ReservationDao;
 import com.example.entity.Reservation;
+import com.example.entity.ReservationId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class ReservationService {
         this.internalService = internalService;
     }
 
-    public Optional<Reservation> findById(Integer id) {
+    public Optional<Reservation> findById(ReservationId id) {
         return dao.selectById(id);
     }
 
@@ -32,7 +33,7 @@ public class ReservationService {
     }
 
     public int save(Reservation entity) {
-        if (entity.id == null) {
+        if (entity.getId() == null) {
             return internalService.create(entity);
         } else {
             return internalService.update(entity);

@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.TestConfig;
 import com.example.entity.Reservation;
+import com.example.entity.ReservationId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -42,8 +43,8 @@ class ReservationServiceTest {
             entity.name = "foo";
             service.save(entity);
 
-            var actual = service.findById(entity.id).orElseThrow();
-            assertThat(actual).extracting("id", "name").containsExactly(entity.id, "foo");
+            var actual = service.findById(entity.getId()).orElseThrow();
+            assertThat(actual).extracting("id", "name").containsExactly(entity.getId(), "foo");
         }
 
         @Test
@@ -56,8 +57,8 @@ class ReservationServiceTest {
             entity.name = "bar";
             service.save(entity);
 
-            var actual = service.findById(entity.id).orElseThrow();
-            assertThat(actual).extracting("id", "name").containsExactly(entity.id, "bar");
+            var actual = service.findById(entity.getId()).orElseThrow();
+            assertThat(actual).extracting("id", "name").containsExactly(entity.getId(), "bar");
 
         }
 
@@ -75,10 +76,10 @@ class ReservationServiceTest {
 
             assertThat(result).isEqualTo(1);
             // ID is auto-generated, so entity.id should be populated after creation
-            assertThat(entity.id).isNotNull();
+            assertThat(entity.getId()).isNotNull();
             
-            var actual = service.findById(entity.id).orElseThrow();
-            assertThat(actual).extracting("id", "name").containsExactly(entity.id, "test-create");
+            var actual = service.findById(entity.getId()).orElseThrow();
+            assertThat(actual).extracting("id", "name").containsExactly(entity.getId(), "test-create");
         }
 
     }
@@ -93,15 +94,15 @@ class ReservationServiceTest {
             entity.name = "find-test";
             service.save(entity);
 
-            var actual = service.findById(entity.id);
+            var actual = service.findById(entity.getId());
 
             assertThat(actual).isPresent();
-            assertThat(actual.get()).extracting("id", "name").containsExactly(entity.id, "find-test");
+            assertThat(actual.get()).extracting("id", "name").containsExactly(entity.getId(), "find-test");
         }
 
         @Test
         void 存在しないIDで検索すると空のOptionalが返される() {
-            var actual = service.findById(999);
+            var actual = service.findById(ReservationId.of(999));
 
             assertThat(actual).isEmpty();
         }
