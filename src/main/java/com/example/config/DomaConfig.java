@@ -1,85 +1,57 @@
 package com.example.config;
 
 import com.example.doma.jdbc.UnknownColumnIgnoreHandler;
-import org.seasar.doma.boot.autoconfigure.DomaAutoConfiguration;
-import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.GreedyCacheSqlFileRepository;
 import org.seasar.doma.jdbc.NoCacheSqlFileRepository;
 import org.seasar.doma.jdbc.SqlFileRepository;
 import org.seasar.doma.jdbc.UnknownColumnHandler;
-import org.seasar.doma.jdbc.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
-import javax.sql.DataSource;
-
+/**
+ * Doma2のカスタム設定クラス。
+ * 
+ * <p>Spring Boot DomaのAutoConfigurationを活用しつつ、
+ * 環境に応じたカスタム設定を提供します。
+ */
 @Configuration
-public class DomaConfig implements Config {
+public class DomaConfig {
 
-  private final Environment environment;
-
-  private final DomaAutoConfiguration domaAutoConfiguration;
-
-  private final DataSource dataSource;
-
-  private SqlFileRepository sqlFileRepository;
-
-  private final String springProfilesActive;
-  private final String domaDialect;
-
-  public DomaConfig(
-      DomaAutoConfiguration domaAutoConfiguration,
-      DataSource dataSource,
-      Environment environment,
-      @Value("${spring.profiles.active:}") String springProfilesActive,
-      @Value("${doma.dialect:postgres}") String domaDialect) {
-    this.springProfilesActive = springProfilesActive;
-    this.domaDialect = domaDialect;
-    this.domaAutoConfiguration = domaAutoConfiguration;
-    this.environment = environment;
-    this.dataSource = dataSource;
-    setSqlFileRepository();
-  }
-
-  @Override
-  public DataSource getDataSource() {
-    return new TransactionAwareDataSourceProxy(dataSource);
-  }
-
-  @Override
-  public UnknownColumnHandler getUnknownColumnHandler() {
-    if ("devel".equals(springProfilesActive)) {
-      return domaAutoConfiguration.domaConfigBuilder().unknownColumnHandler();
-    }
-    return new UnknownColumnIgnoreHandler();
-  }
-
-  @Override
-  public Dialect getDialect() {
-    String dialectName = domaDialect.toLowerCase();
-    if ("postgres".equals(dialectName) || "postgresql".equals(dialectName)) {
-      return new org.seasar.doma.jdbc.dialect.PostgresDialect();
-    } else if ("h2".equals(dialectName)) {
-      return new org.seasar.doma.jdbc.dialect.H2Dialect();
-    } else {
-      // fallback to PostgreSQL
-      return new org.seasar.doma.jdbc.dialect.PostgresDialect();
-    }
-  }
-
-  public void setSqlFileRepository() {
+  /**
+   * SQLファイルリポジトリのBean定義。
+   * 
+   * <p>開発環境ではSQLファイルのキャッシュを無効にし、
+   * 本番環境ではキャッシュを有効にします。
+   *
+   * @param springProfilesActive アクティブなSpringプロファイル
+   * @return SQLファイルリポジトリの実装
+   */
+  @Bean
+  public SqlFileRepository sqlFileRepository(@Value("${spring.profiles.active:}") String springProfilesActive) {
     // develop モードの時は SQL ファイルがキャッシュされないようにする
     if ("devel".equals(springProfilesActive)) {
-      sqlFileRepository = new NoCacheSqlFileRepository();
+      return new NoCacheSqlFileRepository();
     } else {
-      sqlFileRepository = new GreedyCacheSqlFileRepository();
+      return new GreedyCacheSqlFileRepository();
     }
   }
 
-  @Override
-  public SqlFileRepository getSqlFileRepository() {
-    return sqlFileRepository;
+  /**
+   * 未知のカラムハンドラーのBean定義。
+   * 
+   * <p>本番環境でのみ有効になり、未知のカラムを無視する
+   * カスタムハンドラーを提供します。
+   * 
+   * <p>開発環境では、Spring Boot DomaのAutoConfigurationが提供する
+   * デフォルトハンドラー（例外を投げる）が使用されます。
+   *
+   * @return {@link UnknownColumnIgnoreHandler}
+   */
+  @Bean
+  @ConditionalOnExpression("!'devel'.equals('${spring.profiles.active:}')")
+  public UnknownColumnHandler unknownColumnHandler() {
+    return new UnknownColumnIgnoreHandler();
   }
 }
