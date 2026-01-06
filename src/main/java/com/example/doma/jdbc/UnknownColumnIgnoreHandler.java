@@ -6,6 +6,7 @@ import org.seasar.doma.jdbc.query.Query;
 
 import java.util.function.Supplier;
 
+
 public final class UnknownColumnIgnoreHandler implements UnknownColumnHandler {
 
     @Override
