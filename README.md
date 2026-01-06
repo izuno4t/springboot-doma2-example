@@ -23,7 +23,7 @@ SpringBootでDoma2を利用してRDBMS（PostgreSQL、MySQLなど）を利用す
 
 ## 必要環境
 
-- Java 21
+- Java 25
 - Docker / Docker Compose（PostgreSQL用）
 - Maven 3.6+（`./mvnw`推奨）
 
@@ -72,7 +72,7 @@ PGPASSWORD=example psql -h localhost -U example -d example -c "\\d reservation;"
 ./mvnw versions:display-dependency-updates | grep spring-boot
 
 # Spring Boot バージョンの更新
-./mvnw versions:set-property -Dproperty=spring-boot.version -DnewVersion=3.4.0
+./mvnw versions:set-property -Dproperty=spring-boot.version -DnewVersion=4.0.1
 ```
 
 ### セキュリティアップデート

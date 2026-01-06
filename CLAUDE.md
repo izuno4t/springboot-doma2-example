@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpringBoot application demonstrating Doma2 ORM integration with PostgreSQL database using Java 17, Spring Boot 3.3.7, and Maven.
+SpringBoot application demonstrating Doma2 ORM integration with PostgreSQL database using Java 25, Spring Boot 4.0.1, and Maven.
 
 ## Development Commands
 
@@ -29,14 +29,15 @@ PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_tabl
 # Package without tests (40+ seconds - use 90+ minute timeout)  
 ./mvnw clean package -DskipTests
 
+# Run all tests
+./mvnw test
+
 # Run specific tests (recommended to avoid failing business logic test)
 ./mvnw test -Dtest="ApplicationTests,ReservationDaoTest"
 
-# Static analysis
-./mvnw spotbugs:check      # 40+ seconds - use 90+ minute timeout
-./mvnw pmd:check          # 12+ seconds  
-./mvnw checkstyle:check   # 15+ seconds
-./mvnw verify -DskipTests # Combined verification (60+ seconds)
+# Project verification (includes tests, static analysis, and build validation)
+./mvnw verify             # Complete verification with tests (90+ seconds - use 90+ minute timeout)
+./mvnw verify -DskipTests # Verification without tests (60+ seconds - use 90+ minute timeout)
 ```
 
 ### Database Connection
@@ -47,9 +48,9 @@ PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_tabl
 ## Architecture
 
 ### Key Technologies
-- **Java 21** (specified in pom.xml and .sdkmanrc)
-- **Spring Boot 3.3.7** with auto-configuration
-- **Doma2 3.11.0** ORM framework with 2-way SQL
+- **Java 25** (specified in pom.xml and .sdkmanrc)
+- **Spring Boot 4.0.1** with auto-configuration
+- **Doma2 3.11.1** ORM framework with 2-way SQL
 - **PostgreSQL 12** database
 - **Maven** with extensive plugin configuration
 
@@ -80,6 +81,7 @@ src/test/java/com/example/
 - **2-way SQL**: SQL files in `META-INF` directory structure matching DAO package/class names
 - **Entity mapping**: Simple POJO entities with Doma2 annotations (`@Entity`, `@Id`, `@GeneratedValue`)
 - **Transaction management**: Uses Spring's `TransactionAwareDataSourceProxy`
+- **Java 25 Compatibility**: Requires explicit annotation processor configuration in maven-compiler-plugin
 
 ## Important Notes
 
