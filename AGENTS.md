@@ -11,7 +11,7 @@
 - `./mvnw test` runs unit and integration tests.
 - `./mvnw verify` runs tests plus static analysis and coverage checks.
 - `./mvnw clean package -DskipTests` packages without tests.
-- Database setup (required for DAO tests): `docker compose up -d`, then run `schema/create_table.sql` against `jdbc:postgresql://localhost:5432/example`.
+- Database setup (local runtime only): `docker compose up -d`, then run `schema/create_table.sql` against `jdbc:postgresql://localhost:5432/example`.
 
 ## Coding Style & Naming Conventions
 - Java 25, Maven build; 4-space indentation, UTF-8 encoding.
@@ -22,7 +22,7 @@
 ## Testing Guidelines
 - JUnit (via `spring-boot-starter-test`) and Mockito are used.
 - Test classes follow `*Test.java` naming in `src/test/java/`.
-- Known issue: one service test is reported failing in `ReservationServiceTest`; run targeted tests when iterating or fix as part of your change.
+- Tests use Testcontainers for PostgreSQL; Docker is required, but docker-compose is not needed for tests.
 
 ## Commit & Pull Request Guidelines
 - Recent history follows Conventional Commits-style prefixes (e.g., `feat:`, `chore:`); keep messages short and imperative.

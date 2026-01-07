@@ -27,7 +27,7 @@ SpringBootでDoma2を利用してRDBMS（PostgreSQL、MySQLなど）を利用す
 - Docker / Docker Compose（PostgreSQL用）
 - Maven 3.6+（`./mvnw`推奨）
 
-## データベースセットアップ手順
+## ローカル実行環境のデータベースセットアップ
 
 ```bash
 # logディレクトリ作成（権限設定必須）
@@ -47,13 +47,14 @@ PGPASSWORD=example psql -h localhost -U example -d example -c "\\d reservation;"
 ## Testcontainers を使ったテスト実行
 
 Docker が利用可能な環境で、PostgreSQL コンテナを自動起動してテストを実行できます。
+ローカル実行用の docker-compose 環境はテストには不要です。
 
 ```bash
 # テスト実行（Testcontainers）
 ./mvnw test
 ```
 
-必要に応じて `PG_URL` などの環境変数は指定不要です（Testcontainersが動的に設定します）。
+DB接続情報は指定不要です（Testcontainersが動的に設定します）。
 
 ## 依存モジュールのアップデート
 
