@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+      TESTCONTAINERS_HOST_OVERRIDE: localhost
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Build
+        run: ./mvnw clean compile
+      - name: Verify
+        run: ./mvnw verify

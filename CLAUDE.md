@@ -29,7 +29,7 @@ PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_tabl
 # Package without tests (40+ seconds - use 90+ minute timeout)  
 ./mvnw clean package -DskipTests
 
-# Run all tests
+# Run all tests (uses Testcontainers - no database setup required)
 ./mvnw test
 
 # Run specific tests (recommended to avoid failing business logic test)
@@ -51,7 +51,8 @@ PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_tabl
 - **Java 25** (specified in pom.xml and .sdkmanrc)
 - **Spring Boot 4.0.1** with auto-configuration
 - **Doma2 3.11.1** ORM framework with 2-way SQL
-- **PostgreSQL 12** database
+- **PostgreSQL 12** database (Docker Compose) / **PostgreSQL 16** (Testcontainers)
+- **Testcontainers 1.21.4** for integration testing
 - **Maven** with extensive plugin configuration
 
 ### Project Structure
@@ -71,6 +72,7 @@ src/main/resources/META-INF/com/example/dao/ReservationDao/
 src/test/java/com/example/
 ├── ApplicationTests.java              # Basic application context test
 ├── TestConfig.java                    # Test configuration
+├── TestContainersConfig.java          # Testcontainers configuration for PostgreSQL
 ├── dao/ReservationDaoTest.java        # DAO integration tests
 └── service/ReservationServiceTest.java # Service layer tests (has failing test)
 ```
@@ -80,8 +82,15 @@ src/test/java/com/example/
 - **Profile-aware caching**: SQL files cached in production, not cached in develop profile  
 - **2-way SQL**: SQL files in `META-INF` directory structure matching DAO package/class names
 - **Entity mapping**: Simple POJO entities with Doma2 annotations (`@Entity`, `@Id`, `@GeneratedValue`)
+- **Value Objects**: Uses `ReservationId` value object for type-safe entity IDs
 - **Transaction management**: Uses Spring's `TransactionAwareDataSourceProxy`
 - **Java 25 Compatibility**: Requires explicit annotation processor configuration in maven-compiler-plugin
+
+### Testing Architecture
+- **Testcontainers Integration**: Automatic PostgreSQL container provisioning for tests
+- **Docker-free Testing**: Tests run without requiring local Docker Compose setup
+- **Profile Separation**: Test profile uses `devel` profile for immediate SQL file reflection
+- **Schema Initialization**: Automatic schema creation from `schema/create_table.sql`
 
 ## Important Notes
 
