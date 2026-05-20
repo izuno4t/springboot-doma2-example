@@ -4,109 +4,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpringBoot application demonstrating Doma2 ORM integration with PostgreSQL database using Java 25, Spring Boot 4.0.1, and Maven.
+Spring Boot + Doma2 ORM の参考実装。Java 25 / Spring Boot 4.0.6 / Doma2 3.11.1 / PostgreSQL 構成で、`doma-spring-boot-starter` を基盤にして運用特性（未知カラム無視、SQL キャッシュ）をプロファイルで切り替える。
+
+関連ドキュメント:
+- `README.md` — 機能概要、依存更新コマンド、参考リンク
+- `AGENTS.md` — リポジトリ作業規約（**作業中のやりとりは日本語**、`pom.xml` の安易な変更禁止、複数案の提示と Pros/Cons など）
+- `SECURITY.md` — 脆弱性報告手順
 
 ## Development Commands
 
-### Database Setup (Required First)
+### テスト実行（Docker 必要、DB 起動は不要）
 ```bash
-# Create log directory with proper permissions
+./mvnw test                                      # 全テスト（Testcontainers が PostgreSQL を自動起動）
+./mvnw test -Dtest=ReservationDaoTest            # クラス単位
+./mvnw test -Dtest=ReservationServiceTest$Save#データがないのでinsertされる  # メソッド単位
+./mvnw verify                                    # テスト + 静的解析（Checkstyle / PMD / SpotBugs / JaCoCo）
+./mvnw verify -DskipTests                        # 静的解析のみ
+```
+
+### アプリ起動用ローカル DB セットアップ（テストには不要）
+`./mvnw spring-boot:run` でアプリを起動したいときのみ実施。
+```bash
 sudo rm -rf log && sudo mkdir -p log/postgres && sudo chown -R $(whoami):$(id -gn) log
-
-# Start PostgreSQL database (takes ~15 seconds to initialize)
-docker compose up -d
-
-# Wait and create schema
+docker compose up -d   # docker/postgres/Dockerfile (postgres:17 ベース)
 sleep 15
 PGPASSWORD=example psql -h localhost -U example -d example -f schema/create_table.sql
 ```
+接続: `jdbc:postgresql://localhost:5432/example` / `example` / `example`
 
-### Build and Test Commands
+### 依存更新
 ```bash
-# Build (70+ seconds - use 90+ minute timeout)
-./mvnw clean compile
-
-# Package without tests (40+ seconds - use 90+ minute timeout)  
-./mvnw clean package -DskipTests
-
-# Run all tests (uses Testcontainers - no database setup required)
-./mvnw test
-
-# Run specific tests (recommended to avoid failing business logic test)
-./mvnw test -Dtest="ApplicationTests,ReservationDaoTest"
-
-# Project verification (includes tests, static analysis, and build validation)
-./mvnw verify             # Complete verification with tests (90+ seconds - use 90+ minute timeout)
-./mvnw verify -DskipTests # Verification without tests (60+ seconds - use 90+ minute timeout)
+./mvnw versions:display-dependency-updates       # 更新候補確認
+./mvnw versions:set-property -Dproperty=spring-boot.version -DnewVersion=X.Y.Z
 ```
-
-### Database Connection
-- URL: `jdbc:postgresql://localhost:5432/example`
-- Username/Password: `example/example`
-- Test connection: `PGPASSWORD=example psql -h localhost -U example -d example -c "SELECT COUNT(*) FROM reservation;"`
 
 ## Architecture
 
-### Key Technologies
-- **Java 25** (specified in pom.xml and .sdkmanrc)
-- **Spring Boot 4.0.1** with auto-configuration
-- **Doma2 3.11.1** ORM framework with 2-way SQL
-- **PostgreSQL 12** database (Docker Compose) / **PostgreSQL 16** (Testcontainers)
-- **Testcontainers 1.21.4** for integration testing
-- **Maven** with extensive plugin configuration
+### Doma2 統合の要点
+- `config/DomaConfig.java` で **プロファイルにより Bean を切替**:
+  - `devel` プロファイル: `NoCacheSqlFileRepository`（SQL ファイル即時反映）、`UnknownColumnHandler` は Bean 定義せず AutoConfiguration のデフォルト（例外を投げる）を使う
+  - それ以外（本番想定）: `GreedyCacheSqlFileRepository`、`UnknownColumnIgnoreHandler`（未知カラムを無視）
+- 2-way SQL は `src/main/resources/META-INF/<DAO完全修飾名>/<メソッド名>.sql` のパス規約で配置
+- `ReservationId` は値オブジェクトで型安全な ID を提供
+- アノテーションプロセッサは `maven-compiler-plugin` で明示設定（Java 25 互換性のため必須）
 
-### Project Structure
-```
-src/main/java/com/example/
-├── Application.java                    # Main Spring Boot application
-├── config/DomaConfig.java             # Doma2 ORM configuration with profile-specific SQL caching
-├── entity/Reservation.java            # Doma2 entity with auto-generated ID
-├── dao/ReservationDao.java            # Doma2 DAO interface 
-├── service/ReservationService.java    # Business logic service
-└── doma/jdbc/UnknownColumnIgnoreHandler.java  # Custom column handler
+### トランザクション設計（重要）
+`ReservationService` は **NESTED 伝播** を使う特殊な構造:
+- `ReservationService.save()` 自体は `@Transactional` を付けない
+- 実 DB 操作は package-private な `ReservationServiceHelper.create() / update()` に委譲され、それぞれ `@Transactional(propagation = NESTED)` を持つ
+- 目的: 外側のトランザクション境界から独立したセーブポイントを設け、部分ロールバックを可能にする
+- `ReservationService.create()` は通常の `@Transactional`、`findById()` はトランザクションなし
 
-src/main/resources/META-INF/com/example/dao/ReservationDao/
-├── selectAll.sql                      # 2-way SQL files for DAO methods
-└── selectById.sql
+### テスト構成
+- `TestConfig` が `@EnableAutoConfiguration` + `@ComponentScan(com.example)` + `TestContainersConfig` を `@Import`
+- `TestContainersConfig` は `postgres:16-alpine` を `@ServiceConnection` で公開、Spring Boot が自動的に DataSource を構成
+- `src/test/resources/application.properties` で `spring.sql.init.schema-locations=file:./schema/create_table.sql` を指定し、コンテナ起動後にスキーマを自動投入
+- テストプロファイルも `devel` なので、SQL ファイル変更は再ビルドなしで反映され、未知カラムはエラーになる
 
-src/test/java/com/example/
-├── ApplicationTests.java              # Basic application context test
-├── TestConfig.java                    # Test configuration
-├── TestContainersConfig.java          # Testcontainers configuration for PostgreSQL
-├── dao/ReservationDaoTest.java        # DAO integration tests
-└── service/ReservationServiceTest.java # Service layer tests (has failing test)
-```
+### プロファイル早見表
+| プロファイル | SQL キャッシュ | 未知カラム | 用途 |
+|---|---|---|---|
+| `devel`（テスト / ローカル起動のデフォルト） | 無効 | 例外 | 開発中の即時反映 |
+| その他 | 有効（Greedy） | 無視 | 本番想定 |
 
-### Doma2 Architecture Details
-- **Config**: Custom `DomaConfig` implements Doma2 `Config` interface
-- **Profile-aware caching**: SQL files cached in production, not cached in develop profile  
-- **2-way SQL**: SQL files in `META-INF` directory structure matching DAO package/class names
-- **Entity mapping**: Simple POJO entities with Doma2 annotations (`@Entity`, `@Id`, `@GeneratedValue`)
-- **Value Objects**: Uses `ReservationId` value object for type-safe entity IDs
-- **Transaction management**: Uses Spring's `TransactionAwareDataSourceProxy`
-- **Java 25 Compatibility**: Requires explicit annotation processor configuration in maven-compiler-plugin
+## Known Constraints
 
-### Testing Architecture
-- **Testcontainers Integration**: Automatic PostgreSQL container provisioning for tests
-- **Docker-free Testing**: Tests run without requiring local Docker Compose setup
-- **Profile Separation**: Test profile uses `devel` profile for immediate SQL file reflection
-- **Schema Initialization**: Automatic schema creation from `schema/create_table.sql`
-
-## Important Notes
-
-### Known Issues
-- One service test fails due to business logic (not configuration): `ReservationServiceTest.データがあるのでUpdateで更新される`
-- Application requires proper database configuration to start in default profile
-- PMD shows ASM compatibility warnings (non-fatal)
-- SpotBugs reports 5 medium-priority issues (informational)
-
-### Build Performance
-- All Maven operations require significant time (40-70+ seconds)
-- Always use 90+ minute timeouts for builds to avoid interruption
-- Database container needs 15 second initialization time
-
-### Static Analysis Configuration
-- **Checkstyle**: Google checks with exclusions for generated/config files
-- **PMD**: Excludes DTOs, forms, configs, and generated Doma2 implementations
-- **SpotBugs**: Max effort analysis with XML output
-- **JaCoCo**: Code coverage with 90% branch coverage requirement for integration tests
+- `./mvnw spring-boot:run` はデフォルトプロファイル（`application.properties` で `devel`）で DataSource 設定が必要。DB 未起動だと "Failed to determine a suitable driver class" で停止する。コンソールアプリで Web サーバーは持たない
+- 静的解析の警告は非ファタル設定: PMD は ASM 互換性警告、SpotBugs は medium 優先度の指摘あり。`./mvnw verify` 自体は通る（JaCoCo の 90% ブランチカバレッジは integration test 用、現状 integration test なしで適用されない）
+- CI は `.github/workflows/ci.yml`（テスト）と `qodana_code_quality.yml`（品質チェック）の 2 本
