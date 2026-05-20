@@ -77,7 +77,7 @@ class ReservationServiceTest {
             assertThat(result).isEqualTo(1);
             // ID is auto-generated, so entity.id should be populated after creation
             assertThat(entity.getId()).isNotNull();
-            
+
             var actual = service.findById(entity.getId()).orElseThrow();
             assertThat(actual).extracting("id", "name").containsExactly(entity.getId(), "test-create");
         }

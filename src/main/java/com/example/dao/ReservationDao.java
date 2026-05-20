@@ -13,13 +13,13 @@ import java.util.Optional;
 
 /**
  * 予約エンティティのデータアクセスオブジェクト（DAO）。
- * 
+ *
  * <p>このインターフェースはDoma2の2-way SQLを使用して、
  * 予約テーブルへのCRUD操作を提供します。
  * SQLファイルは{@code META-INF/com/example/dao/ReservationDao/}ディレクトリに配置され、
  * メソッド名と対応するSQLファイルが自動的にマッピングされます。
  * </p>
- * 
+ *
  * <h3>SQLファイルマッピング</h3>
  * <ul>
  * <li>{@code selectById} → selectById.sql</li>
@@ -27,7 +27,7 @@ import java.util.Optional;
  * <li>{@code insert} → 自動生成SQL</li>
  * <li>{@code update} → 自動生成SQL</li>
  * </ul>
- * 
+ *
  * <p>このDAOは{@code @ConfigAutowireable}により、
  * Spring BootのDomaAutoConfigurationで自動的にBeanとして登録されます。
  * </p>
@@ -38,7 +38,7 @@ public interface ReservationDao {
 
     /**
      * 指定されたIDで予約を検索します。
-     * 
+     *
      * <p>対応するSQLファイル: {@code selectById.sql}</p>
      *
      * @param id 検索する予約ID
@@ -49,7 +49,7 @@ public interface ReservationDao {
 
     /**
      * 全ての予約を取得します。
-     * 
+     *
      * <p>対応するSQLファイル: {@code selectAll.sql}
      * 結果は名前順でソートされます。</p>
      *
@@ -60,7 +60,7 @@ public interface ReservationDao {
 
     /**
      * 新しい予約を挿入します。
-     * 
+     *
      * <p>SQLは自動生成され、IDは{@code IDENTITY}戦略により
      * データベースで自動採番されます。</p>
      *
@@ -72,7 +72,7 @@ public interface ReservationDao {
 
     /**
      * 既存の予約を更新します。
-     * 
+     *
      * <p>SQLは自動生成され、IDに基づいて対象レコードが特定されます。</p>
      *
      * @param reservation 更新する予約エンティティ

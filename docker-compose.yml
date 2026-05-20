@@ -13,7 +13,7 @@ services:
       - ./docker/postgres/conf.d:/etc/postgresql
       - ./log/postgres:/var/log/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U example -d example"]
+      test: [ "CMD-SHELL", "pg_isready -U example -d example" ]
       interval: 10s
       timeout: 5s
       retries: 5
