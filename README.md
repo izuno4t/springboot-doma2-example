@@ -1,6 +1,7 @@
 # SpringBoot + Doma2 Example Application
 
 ![CI](https://github.com/izuno4t/springboot-doma2-example/actions/workflows/ci.yml/badge.svg)
+![Spring Boot](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fizuno4t%2Fspringboot-doma2-example%2Fmain%2Fpom.xml&query=%2F%2A%5Blocal-name%28%29%3D%27project%27%5D%2F%2A%5Blocal-name%28%29%3D%27parent%27%5D%2F%2A%5Blocal-name%28%29%3D%27version%27%5D&label=Spring%20Boot&color=6db33f&logo=springboot)
 
 SpringBootでDoma2を利用してRDBMS（PostgreSQL、MySQLなど）を利用する実装例です。
 
