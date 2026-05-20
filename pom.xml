@@ -125,19 +125,25 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <compilerVersion>${java.version}</compilerVersion>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.seasar.doma</groupId>
-                            <artifactId>doma-processor</artifactId>
-                            <version>${doma.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                    <compilerArgs>
-                        <arg>-Adoma.resources.dir=${project.basedir}/src/main/resources</arg>
-                    </compilerArgs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.seasar.doma</groupId>
+                                    <artifactId>doma-processor</artifactId>
+                                    <version>${doma.version}</version>
+                                </path>
+                            </annotationProcessorPaths>
+                            <compilerArgs>
+                                <arg>-Adoma.resources.dir=${project.basedir}/src/main/resources</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -203,6 +209,7 @@
                     <failOnViolation>false</failOnViolation>
                     <targetJdk>${java.version}</targetJdk>
                     <ignoreIdentifiers>true</ignoreIdentifiers>
+                    <linkXRef>false</linkXRef>
                     <excludes>
                         <exclude>**/_*.java</exclude>
                         <exclude>**/*Dto.java</exclude>
